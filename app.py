@@ -178,25 +178,45 @@ def perform_bst_search(keyword):
 # -------------------------
 @app.route("/", methods=["GET", "POST"])
 def home():
-    posts = get_feed_stack()
-
     if request.method == "POST":
         keyword = request.form.get("search", "") or ""
-        dfs_results = perform_bst_search(keyword)
 
         db = get_db()
         sql_results = db.execute("""
-            SELECT * FROM posts 
+            SELECT id, title, caption 
+            FROM posts
             WHERE title LIKE ? OR caption LIKE ?
+            ORDER BY id DESC
         """, (f"%{keyword}%", f"%{keyword}%")).fetchall()
 
-        return render_template("index.html",
-                               posts=posts,
-                               query=keyword,
-                               dfs_results=dfs_results,
-                               sql_results=[dict(r) for r in sql_results])
+        return jsonify([
+            {"id": r["id"], "title": r["title"], "caption": r["caption"]}
+            for r in sql_results
+        ])
 
+    # default homepage load
+    posts = get_feed_stack()
     return render_template("index.html", posts=posts)
+
+
+@app.route("/search_posts")
+def search_posts():
+    q = request.args.get("q", "").strip()
+
+    db = get_db()
+    rows = db.execute("""
+        SELECT id, title, caption 
+        FROM posts
+        WHERE title LIKE ? OR caption LIKE ?
+        ORDER BY id DESC
+    """, (f"%{q}%", f"%{q}%")).fetchall()
+
+    results = [
+        {"id": r["id"], "title": r["title"], "caption": r["caption"]}
+        for r in rows
+    ]
+
+    return jsonify(results)
 
 @app.route("/lectures", methods=["GET", "POST"])
 def lectures():

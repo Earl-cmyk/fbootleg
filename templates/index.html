@@ -26,9 +26,6 @@
 
 {% block scripts %}
 <script>
-/* ============================= */
-/* SEARCH + DISPLAY RESULTS      */
-/* ============================= */
 const searchBar = document.getElementById("home-search");
 const feed = document.getElementById("feed-scroll");
 const welcome = document.getElementById("welcome-section");
@@ -46,7 +43,10 @@ function displayResults(data) {
   data.forEach(post => {
     const bubble = document.createElement("div");
     bubble.className = "ai-response";
-    bubble.innerHTML = `<strong>${post.title}</strong><br>${post.caption}`;
+    bubble.innerHTML = `
+      <strong>${post.title}</strong><br>
+      <span class="preserve">${post.caption}</span>
+    `;
     feed.appendChild(bubble);
   });
 
@@ -77,11 +77,6 @@ searchBar.addEventListener("keydown", e => {
 });
 sendBtn.addEventListener("click", performSearch);
 
-
-/* ============================= */
-/* BACKGROUND GRID SYSTEM        */
-/* ============================= */
-
 const grid = document.getElementById("bg-grid");
 
 function generateGrid() {
@@ -104,4 +99,5 @@ function generateGrid() {
 generateGrid();
 window.addEventListener("resize", generateGrid);
 </script>
+
 {% endblock scripts %}
